@@ -1,4 +1,4 @@
-package com.iotSystem.deviceManager.deviceGroup;
+package com.iotSystem.device;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
