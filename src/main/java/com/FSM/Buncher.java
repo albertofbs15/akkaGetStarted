@@ -15,7 +15,7 @@ import static com.FSM.State.Idle;
  */
 public class Buncher  extends AbstractFSM<State, Data> {
     {
-        startWith(Idle, Uninitialized.Uninitialized);
+        startWith(Idle, Uninitialized.Uninitialized); //Uninitialized implements Data (Igual que el Todo.class)
 
         when(Idle,
                 matchEvent(SetTarget.class, Uninitialized.class,
@@ -33,17 +33,18 @@ public class Buncher  extends AbstractFSM<State, Data> {
                         state(Idle, Active, () -> {/* Do something here */}));
 
         when(Active, Duration.create(1, "second"),
-                matchEvent(Arrays.asList(Flush.class, StateTimeout()), Todo.class,
+                matchEvent(Arrays.asList(Flush.class, StateTimeout()), Todo.class, //ACA LO FLUSHEO Y EN LA TRASICION ENVIO LA INFO
                         (event, todo) -> goTo(Idle).using(todo.copy(new LinkedList<>()))));
 
         whenUnhandled(
-                matchEvent(Queue.class, Todo.class,
-                        (queue, todo) -> goTo(Active).using(todo.addElement(queue.getObj()))).
-                        anyEvent((event, state) -> {
-                            log().warning("received unhandled request {} in state {}/{}",
-                                    event, stateName(), state);
-                            return stay();
-                        }));
+                matchEvent(Queue.class, Todo.class, // (SI ESTO ES Uninitialized.class se va al default ANYEVENT)
+                        (queue, todo) -> goTo(Active).using(todo.addElement(queue.getObj()))) //AGREGO LOS ELEMENTOS
+
+                .anyEvent((event, state) -> {
+                    log().warning("received unhandled request {} in state {}/{}",
+                            event, stateName(), state);
+                    return stay();
+                }));
 
         initialize();
     }
